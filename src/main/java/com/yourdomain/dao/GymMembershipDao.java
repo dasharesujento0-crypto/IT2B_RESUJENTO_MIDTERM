@@ -10,10 +10,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Data Access Object: the ONLY class that contains SQL statements.
- * The UI calls these methods and never touches JDBC.
- */
 public class GymMembershipDao {
 
     private static final String CREATE_TABLE_SQL =
@@ -37,12 +33,6 @@ public class GymMembershipDao {
         this.databaseConnection = databaseConnection;
     }
 
-    /**
-     * Creates the members table if it does not exist yet.
-     * Existing records are never deleted.
-     *
-     * @throws IllegalStateException if the database cannot be initialized
-     */
     public void initializeDatabase() {
         try (Connection connection = databaseConnection.getConnection();
              Statement statement = connection.createStatement()) {
@@ -52,11 +42,6 @@ public class GymMembershipDao {
         }
     }
 
-    /**
-     * Inserts one member using a parameterized PreparedStatement.
-     *
-     * @return true only if exactly one row was actually inserted; false otherwise
-     */
     public boolean addMember(GymMember member) {
         try (Connection connection = databaseConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(INSERT_SQL)) {
@@ -73,11 +58,6 @@ public class GymMembershipDao {
         }
     }
 
-    /**
-     * Reads every member from the database, ordered by ID ascending.
-     *
-     * @throws IllegalStateException if the records cannot be read
-     */
     public List<GymMember> getAllMembers() {
         List<GymMember> members = new ArrayList<>();
 

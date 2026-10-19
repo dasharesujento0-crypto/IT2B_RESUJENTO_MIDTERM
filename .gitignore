@@ -1,11 +1,7 @@
-# Maven build output
 target/
 
-# IntelliJ IDEA
 .idea/
 *.iml
-
-# Local SQLite database files
 *.db
 *.sqlite
 *.sqlite3

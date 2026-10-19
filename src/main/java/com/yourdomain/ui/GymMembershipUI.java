@@ -8,10 +8,6 @@ import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
-/**
- * Console user interface: menu loop, prompts, validation, and table output.
- * Contains NO SQL and NO JDBC. All data access goes through the DAO.
- */
 public class GymMembershipUI {
 
     private static final int MAX_NAME_LENGTH = 100;
@@ -23,7 +19,6 @@ public class GymMembershipUI {
         this.membershipDao = membershipDao;
     }
 
-    /** Runs the repeating menu until the user chooses option 3. */
     public void start() {
         boolean running = true;
 
@@ -49,7 +44,6 @@ public class GymMembershipUI {
                 }
             }
         } catch (NoSuchElementException e) {
-            // Input stream was closed (e.g. Ctrl+D / Ctrl+Z): exit safely.
             System.out.println();
             System.out.println("Input closed. Exiting system.");
         } finally {
@@ -67,9 +61,6 @@ public class GymMembershipUI {
         System.out.println();
     }
 
-    // ---------------------------------------------------------------
-    // Option 1: Add New Member
-    // ---------------------------------------------------------------
     private void addNewMember() {
         System.out.println();
         System.out.println("--- Add New Member ---");
@@ -81,7 +72,6 @@ public class GymMembershipUI {
 
         GymMember member = new GymMember(fullName, tier, monthlyFee, status);
 
-        // Success is printed only if the DAO confirms the row was inserted.
         if (membershipDao.addMember(member)) {
             System.out.println("Member added successfully!");
         } else {
@@ -115,6 +105,10 @@ public class GymMembershipUI {
     private double readMonthlyFee() {
         while (true) {
             String input = readLine("Monthly Fee: ").trim();
+            if (!input.matches("-?\\d+(\\.\\d+)?")) {
+                System.out.println("Invalid number. Please enter a valid amount, e.g. 500 or 1200.50.");
+                continue;
+            }
             try {
                 double fee = Double.parseDouble(input);
                 if (Double.isNaN(fee) || Double.isInfinite(fee)) {
@@ -140,9 +134,6 @@ public class GymMembershipUI {
         }
     }
 
-    // ---------------------------------------------------------------
-    // Option 2: View All Members
-    // ---------------------------------------------------------------
     private void viewAllMembers() {
         List<GymMember> members;
         try {
@@ -162,7 +153,6 @@ public class GymMembershipUI {
         System.out.println("Total records: " + members.size());
     }
 
-    /** Prints an aligned ASCII table; column widths adapt to the data. */
     private void printTable(List<GymMember> members) {
         String[] headers = {"ID", "FULL NAME", "TIER", "MONTHLY FEE", "STATUS"};
         int[] widths = new int[headers.length];
@@ -170,7 +160,6 @@ public class GymMembershipUI {
             widths[i] = headers[i].length();
         }
 
-        // Build the text of every cell first, and track the widest value per column.
         String[][] rows = new String[members.size()][];
         for (int r = 0; r < members.size(); r++) {
             GymMember m = members.get(r);
@@ -207,7 +196,6 @@ public class GymMembershipUI {
     private String buildRow(String[] cells, int[] widths) {
         StringBuilder sb = new StringBuilder("|");
         for (int i = 0; i < cells.length; i++) {
-            // ID and MONTHLY FEE are right-aligned (numbers); the rest are left-aligned.
             boolean rightAlign = (i == 0 || i == 3);
             String format = rightAlign ? " %" + widths[i] + "s |" : " %-" + widths[i] + "s |";
             sb.append(String.format(format, cells[i]));
@@ -215,10 +203,6 @@ public class GymMembershipUI {
         return sb.toString();
     }
 
-    // ---------------------------------------------------------------
-    // Input helper: everything is read with nextLine(), so there is no
-    // leftover-newline problem (we never use nextInt()/nextDouble()).
-    // ---------------------------------------------------------------
     private String readLine(String prompt) {
         System.out.print(prompt);
         return scanner.nextLine();
